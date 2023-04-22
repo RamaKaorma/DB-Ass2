@@ -14,7 +14,14 @@
 
 -- ____________________________________________________________________________________________________________________________________________________________________________________________________________
 -- BEGIN Q1
-
+SELECT ID, Title
+FROM publication 
+WHERE publication.ID NOT IN (
+	SELECT ID 
+    FROM publication 
+    INNER JOIN referencing 
+    ON publication.ID = referencing.referencingPublicationId
+);
 
 
 -- END Q1

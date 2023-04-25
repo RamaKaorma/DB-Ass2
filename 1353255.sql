@@ -51,14 +51,24 @@ WHERE EndPage - StartPage >= 10 AND ID in (
         WHERE FirstName = 'Renata' 
         AND   LastName = 'Borovica-Gajic'
 	)
-)
+);
 
 -- END Q3
 -- ____________________________________________________________________________________________________________________________________________________________________________________________________________
 -- BEGIN Q4
 
-
-
+SELECT p.id, p.Title, COUNT(r.referencedPublicationId) AS count 
+FROM publication AS p JOIN referencing AS r
+ON p.Id = r.referencedPublicationId
+GROUP BY referencedPublicationId 
+HAVING count = (
+-- Maximum number of citations
+SELECT MAX(count) FROM (
+	-- Count the number of times each publication is cited
+	SELECT referencedPublicationId, COUNT(referencedPublicationId) AS count 
+	FROM referencing 
+	GROUP BY referencedPublicationId 
+) as maxCount )
 
 -- END Q4
 -- ____________________________________________________________________________________________________________________________________________________________________________________________________________

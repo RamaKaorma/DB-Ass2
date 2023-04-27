@@ -98,9 +98,26 @@ AND ID IN (
 -- ____________________________________________________________________________________________________________________________________________________________________________________________________________
 -- BEGIN Q6
 
-
-
-
+SELECT firstName, LastName
+FROM researcher 
+WHERE researcher.Id IN (
+	-- Select researchers with at least 2 citations
+	SELECT researcher.Id
+	FROM researcher
+	JOIN coauthors ON researcher.Id = AuthorID
+	JOIN referencing ON PublicationID = referencedPublicationId
+	GROUP BY researcher.Id
+	HAVING COUNT(referencedPublicationId) >= 2
+	ORDER BY researcher.Id
+) AND researcher.Id IN (
+	-- Select researchers at the topten list
+	SELECT researcher.Id 
+	FROM researcher
+	JOIN coauthors ON researcher.Id = AuthorID
+	JOIN topten ON coauthors.PublicationID = topten.PublicationId
+	GROUP BY researcher.Id
+    HAVING COUNT(topten.PublicationId) >= 1
+);
 
 -- END Q6
 -- ____________________________________________________________________________________________________________________________________________________________________________________________________________

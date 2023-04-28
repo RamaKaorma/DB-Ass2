@@ -144,15 +144,17 @@ WHERE publication_has_keyword.keywordID IN (
 -- ____________________________________________________________________________________________________________________________________________________________________________________________________________
 -- BEGIN Q8
 
-SELECT FirstName, LastName 
+SELECT DISTINCT FirstName, LastName, COUNT(referencedPublicationId) as totalCitationCount
 FROM researcher
+JOIN coauthors ON researcher.Id = AuthorID
+JOIN referencing ON PublicationID = referencedPublicationId
 WHERE researcher.Id IN (
 	SELECT researcher.Id
 	FROM researcher
 	JOIN coauthors ON researcher.Id = AuthorID
 	JOIN referencing ON PublicationID = referencedPublicationId
 	GROUP BY researcher.Id
-    HAVING COUNT(referencedPublicationId)  = (
+    HAVING COUNT(referencedPublicationId) = (
 		SELECT MAX(PubCount) FROM (
             SELECT researcher.Id, COUNT(referencedPublicationId) AS PubCount
 			FROM researcher
@@ -162,7 +164,8 @@ WHERE researcher.Id IN (
         ) as maxNumCitations
     )
 	ORDER BY researcher.Id
-);
+)
+GROUP BY researcher.Id;
 
 -- END Q8
 -- ____________________________________________________________________________________________________________________________________________________________________________________________________________

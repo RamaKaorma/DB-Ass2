@@ -171,9 +171,20 @@ GROUP BY researcher.Id;
 -- ____________________________________________________________________________________________________________________________________________________________________________________________________________
 -- BEGIN Q9
 
-
-
-
+-- Find researchers that research databases
+-- Find researchers that research machine learning
+-- Cut out researchers from databases that do not coauthor with researchers from machine learning
+SELECT FirstName, LastName
+FROM researcher
+JOIN coauthors ON researcher.Id = AuthorID
+JOIN publication ON publication.Id = PublicationID
+WHERE publication.Id IN (
+	SELECT publication.Id
+	FROM publication
+	JOIN publication_has_keyword ON publication.Id = publicationID
+	JOIN keyword ON publication_has_keyword.keywordID = keyword.Id
+	WHERE Word = 'Databases'
+);
 
 -- END Q9
 -- ____________________________________________________________________________________________________________________________________________________________________________________________________________

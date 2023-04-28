@@ -57,18 +57,19 @@ WHERE EndPage - StartPage >= 10 AND ID in (
 -- ____________________________________________________________________________________________________________________________________________________________________________________________________________
 -- BEGIN Q4
 
-SELECT p.id, p.Title, COUNT(r.referencedPublicationId) AS count 
+SELECT p.id, p.Title, COUNT(r.referencedPublicationId) AS PubCount 
 FROM publication AS p JOIN referencing AS r
 ON p.Id = r.referencedPublicationId
 GROUP BY referencedPublicationId 
-HAVING count = (
--- Maximum number of citations
-SELECT MAX(count) FROM (
-	-- Count the number of times each publication is cited
-	SELECT referencedPublicationId, COUNT(referencedPublicationId) AS count 
-	FROM referencing 
-	GROUP BY referencedPublicationId 
-) AS maxCount );
+HAVING PubCount = (
+	-- Maximum number of citations
+	SELECT MAX(PubCount) FROM (
+		-- Count the number of times each publication is cited
+		SELECT referencedPublicationId, COUNT(referencedPublicationId) AS PubCount 
+		FROM referencing 
+		GROUP BY referencedPublicationId 
+	) AS maxCount 
+);
 
 -- END Q4
 -- ____________________________________________________________________________________________________________________________________________________________________________________________________________
@@ -131,8 +132,8 @@ WHERE publication_has_keyword.keywordID IN (
 	FROM topten
 	GROUP BY PublicationId
 	HAVING COUNT(PublicationId) = (
-		SELECT MAX(count) FROM (
-			SELECT PublicationId, COUNT(PublicationId) AS count 
+		SELECT MAX(PubCount) FROM (
+			SELECT PublicationId, COUNT(PublicationId) AS PubCount 
 			FROM topten 
 			GROUP BY PublicationId 
 		) AS maxCount
@@ -143,9 +144,25 @@ WHERE publication_has_keyword.keywordID IN (
 -- ____________________________________________________________________________________________________________________________________________________________________________________________________________
 -- BEGIN Q8
 
-
-
-
+SELECT FirstName, LastName 
+FROM researcher
+WHERE researcher.Id IN (
+	SELECT researcher.Id
+	FROM researcher
+	JOIN coauthors ON researcher.Id = AuthorID
+	JOIN referencing ON PublicationID = referencedPublicationId
+	GROUP BY researcher.Id
+    HAVING COUNT(referencedPublicationId)  = (
+		SELECT MAX(PubCount) FROM (
+            SELECT researcher.Id, COUNT(referencedPublicationId) AS PubCount
+			FROM researcher
+			JOIN coauthors ON researcher.Id = AuthorID
+			JOIN referencing ON PublicationID = referencedPublicationId
+			GROUP BY researcher.Id
+        ) as maxNumCitations
+    )
+	ORDER BY researcher.Id
+);
 
 -- END Q8
 -- ____________________________________________________________________________________________________________________________________________________________________________________________________________

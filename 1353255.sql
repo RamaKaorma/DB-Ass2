@@ -176,9 +176,23 @@ WHERE researcher.Id IN (
 -- ____________________________________________________________________________________________________________________________________________________________________________________________________________
 -- BEGIN Q10
 
-
-
-
+SELECT DISTINCT FirstName, LastName
+FROM researcher
+JOIN coauthors ON researcher.Id = AuthorID
+JOIN publication ON PublicationID = publication.Id
+WHERE (publication.Id, DateOfPublication) IN (
+	SELECT publication.Id, DateOfPublication
+	FROM publication
+	JOIN coauthors ON PublicationID = publication.Id
+	JOIN researcher ON researcher.Id = AuthorID
+	WHERE FirstName = 'Renata' AND LastName = 'Borovica-Gajic' AND DateOfPublication < '2023-01-01'
+) AND (publication.Id, DateOfPublication) NOT IN (
+	SELECT publication.Id, DateOfPublication
+	FROM publication
+	JOIN coauthors ON PublicationID = publication.Id
+	JOIN researcher ON researcher.Id = AuthorID
+	WHERE FirstName = 'Renata' AND LastName = 'Borovica-Gajic' AND DateOfPublication >= '2023-01-01'
+) AND (FirstName <> 'Renata' AND LastName <> 'Borovica-Gajic')
 
 -- END Q10
 -- ____________________________________________________________________________________________________________________________________________________________________________________________________________
